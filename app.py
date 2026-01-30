@@ -196,7 +196,7 @@ else:
 
             with col1:
                 priority = task.get('priority', 'Medium')
-                st.markdown(f"**{task['name']}** — {priority}")
+                st.markdown(f"<strong>{task['name']}</strong> — {priority}", unsafe_allow_html=True)
                 submitter = task.get('submitter', 'Unknown')
                 st.caption(f"Submitted by: {submitter} | Last run: {task['last_run']} | {task['notes']}")
 
