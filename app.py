@@ -105,7 +105,10 @@ with st.expander("➕ Add New Task", expanded=False):
         new_submitter = st.selectbox("Submitted by", TEAM_MEMBERS)
         new_priority = st.selectbox("Priority", PRIORITIES, index=1)  # Default to Medium
         new_status = st.selectbox("Status", ["pending", "running", "completed", "failed"])
-        new_notes = st.text_area("Notes")
+        new_notes = st.text_area(
+            "Description",
+            placeholder="Describe what this automation should do (e.g., steps, inputs, expected outputs...)"
+        )
 
         if st.form_submit_button("Add Task"):
             if new_name:
