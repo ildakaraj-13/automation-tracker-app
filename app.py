@@ -15,27 +15,50 @@ if "tasks" not in st.session_state:
             "id": 1,
             "name": "Daily Report Generation",
             "status": "completed",
-            "last_run": "2024-01-30 09:00",
+            "submitter": "Ilda Karaj",
+            "last_run": "2026-01-30 09:00",
             "notes": "Runs every morning at 9 AM"
         },
         {
             "id": 2,
             "name": "Data Sync Pipeline",
             "status": "running",
-            "last_run": "2024-01-30 14:30",
+            "submitter": "Torben Schmidt",
+            "last_run": "2026-01-30 14:30",
             "notes": "Syncing customer data from CRM"
         },
         {
             "id": 3,
             "name": "Backup Automation",
             "status": "pending",
-            "last_run": "2024-01-29 23:00",
+            "submitter": "Kilian Zedelius",
+            "last_run": "2026-01-29 23:00",
             "notes": "Scheduled for midnight"
         },
     ]
 
 if "next_id" not in st.session_state:
     st.session_state.next_id = 4
+
+# Team members
+TEAM_MEMBERS = [
+    "Kilian Zedelius",
+    "Jan Krueger",
+    "Dr. Patrick Gassmann",
+    "Anna Hosp",
+    "Johannes Müller",
+    "Johannes Brenninkmeyer",
+    "Ludwig Jakob",
+    "Hendrik Wendefeuer",
+    "Ilda Karaj",
+    "Julian Döttinger",
+    "Artem Vorobyev",
+    "Florian Kroiss",
+    "Tobias Junker",
+    "Torben Schmidt",
+    "Michael Schreiber",
+    "Dominique Vainikka",
+]
 
 # Status styling
 STATUS_COLORS = {
@@ -67,6 +90,7 @@ st.divider()
 with st.expander("➕ Add New Task", expanded=False):
     with st.form("add_task_form", clear_on_submit=True):
         new_name = st.text_input("Task Name")
+        new_submitter = st.selectbox("Submitted by", TEAM_MEMBERS)
         new_status = st.selectbox("Status", ["pending", "running", "completed", "failed"])
         new_notes = st.text_area("Notes")
 
@@ -75,6 +99,7 @@ with st.expander("➕ Add New Task", expanded=False):
                 st.session_state.tasks.append({
                     "id": st.session_state.next_id,
                     "name": new_name,
+                    "submitter": new_submitter,
                     "status": new_status,
                     "last_run": datetime.now().strftime("%Y-%m-%d %H:%M"),
                     "notes": new_notes
@@ -87,14 +112,24 @@ with st.expander("➕ Add New Task", expanded=False):
 # Task list
 st.subheader("📋 Tasks")
 
-# Filter
-filter_status = st.multiselect(
-    "Filter by status",
-    ["pending", "running", "completed", "failed"],
-    default=["pending", "running", "completed", "failed"]
-)
+# Filters
+col_filter1, col_filter2 = st.columns(2)
+with col_filter1:
+    filter_status = st.multiselect(
+        "Filter by status",
+        ["pending", "running", "completed", "failed"],
+        default=["pending", "running", "completed", "failed"]
+    )
+with col_filter2:
+    filter_submitter = st.multiselect(
+        "Filter by submitter",
+        TEAM_MEMBERS,
+        default=[]
+    )
 
 filtered_tasks = [t for t in st.session_state.tasks if t["status"] in filter_status]
+if filter_submitter:
+    filtered_tasks = [t for t in filtered_tasks if t.get("submitter") in filter_submitter]
 
 if not filtered_tasks:
     st.info("No tasks found. Add a new task above!")
@@ -105,7 +140,8 @@ else:
 
             with col1:
                 st.markdown(f"**{STATUS_COLORS[task['status']]} {task['name']}**")
-                st.caption(f"Last run: {task['last_run']} | {task['notes']}")
+                submitter = task.get('submitter', 'Unknown')
+                st.caption(f"Submitted by: {submitter} | Last run: {task['last_run']} | {task['notes']}")
 
             with col2:
                 new_status = st.selectbox(
