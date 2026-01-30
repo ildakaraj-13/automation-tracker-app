@@ -10,38 +10,10 @@ st.set_page_config(
 
 # Initialize session state for tasks
 if "tasks" not in st.session_state:
-    st.session_state.tasks = [
-        {
-            "id": 1,
-            "name": "Daily Report Generation",
-            "status": "completed",
-            "submitter": "Ilda Karaj",
-            "priority": "Medium",
-            "last_run": "2026-01-30 09:00",
-            "notes": "Runs every morning at 9 AM"
-        },
-        {
-            "id": 2,
-            "name": "Data Sync Pipeline",
-            "status": "running",
-            "submitter": "Torben Schmidt",
-            "priority": "High",
-            "last_run": "2026-01-30 14:30",
-            "notes": "Syncing customer data from CRM"
-        },
-        {
-            "id": 3,
-            "name": "Backup Automation",
-            "status": "pending",
-            "submitter": "Kilian Zedelius",
-            "priority": "Critical",
-            "last_run": "2026-01-29 23:00",
-            "notes": "Scheduled for midnight"
-        },
-    ]
+    st.session_state.tasks = []
 
 if "next_id" not in st.session_state:
-    st.session_state.next_id = 4
+    st.session_state.next_id = 1
 
 # Team members
 TEAM_MEMBERS = [
