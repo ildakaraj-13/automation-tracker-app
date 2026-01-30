@@ -116,7 +116,7 @@ st.markdown("""
 
 <div class="header-container">
     <p class="header-title">Automation Tracker</p>
-    <p class="header-subtitle">Submit, track, and manage automation requests across your team</p>
+    <p class="header-subtitle">Welcome! Submit your automation ideas and track their progress here.</p>
     <span class="header-badge">Internal Tool</span>
 </div>
 """, unsafe_allow_html=True)
