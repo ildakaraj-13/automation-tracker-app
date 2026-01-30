@@ -175,8 +175,7 @@ else:
 
             with col1:
                 priority = task.get('priority', 'Medium')
-                priority_icon = PRIORITY_COLORS.get(priority, '⚪')
-                st.markdown(f"**{STATUS_COLORS[task['status']]} {task['name']}** &nbsp; {priority_icon} {priority}")
+                st.markdown(f"**{task['name']}** — {priority}")
                 submitter = task.get('submitter', 'Unknown')
                 st.caption(f"Submitted by: {submitter} | Last run: {task['last_run']} | {task['notes']}")
 
