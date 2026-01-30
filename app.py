@@ -143,7 +143,7 @@ with col_filter1:
     filter_status = st.multiselect(
         "Filter by status",
         ["pending", "running", "completed", "failed"],
-        default=["pending", "running", "completed", "failed"]
+        default=[]
     )
 with col_filter2:
     filter_priority = st.multiselect(
@@ -158,7 +158,9 @@ with col_filter3:
         default=[]
     )
 
-filtered_tasks = [t for t in st.session_state.tasks if t["status"] in filter_status]
+filtered_tasks = st.session_state.tasks.copy()
+if filter_status:
+    filtered_tasks = [t for t in filtered_tasks if t["status"] in filter_status]
 if filter_priority:
     filtered_tasks = [t for t in filtered_tasks if t.get("priority") in filter_priority]
 if filter_submitter:
