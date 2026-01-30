@@ -16,6 +16,7 @@ if "tasks" not in st.session_state:
             "name": "Daily Report Generation",
             "status": "completed",
             "submitter": "Ilda Karaj",
+            "priority": "Medium",
             "last_run": "2026-01-30 09:00",
             "notes": "Runs every morning at 9 AM"
         },
@@ -24,6 +25,7 @@ if "tasks" not in st.session_state:
             "name": "Data Sync Pipeline",
             "status": "running",
             "submitter": "Torben Schmidt",
+            "priority": "High",
             "last_run": "2026-01-30 14:30",
             "notes": "Syncing customer data from CRM"
         },
@@ -32,6 +34,7 @@ if "tasks" not in st.session_state:
             "name": "Backup Automation",
             "status": "pending",
             "submitter": "Kilian Zedelius",
+            "priority": "Critical",
             "last_run": "2026-01-29 23:00",
             "notes": "Scheduled for midnight"
         },
@@ -68,6 +71,15 @@ STATUS_COLORS = {
     "failed": "🔴"
 }
 
+# Priority options
+PRIORITIES = ["Low", "Medium", "High", "Critical"]
+PRIORITY_COLORS = {
+    "Low": "🟢",
+    "Medium": "🟡",
+    "High": "🟠",
+    "Critical": "🔴"
+}
+
 # Header
 st.title("🤖 Automation Tracker")
 st.markdown("Track and manage your team's automation tasks")
@@ -91,6 +103,7 @@ with st.expander("➕ Add New Task", expanded=False):
     with st.form("add_task_form", clear_on_submit=True):
         new_name = st.text_input("Task Name")
         new_submitter = st.selectbox("Submitted by", TEAM_MEMBERS)
+        new_priority = st.selectbox("Priority", PRIORITIES, index=1)  # Default to Medium
         new_status = st.selectbox("Status", ["pending", "running", "completed", "failed"])
         new_notes = st.text_area("Notes")
 
@@ -100,6 +113,7 @@ with st.expander("➕ Add New Task", expanded=False):
                     "id": st.session_state.next_id,
                     "name": new_name,
                     "submitter": new_submitter,
+                    "priority": new_priority,
                     "status": new_status,
                     "last_run": datetime.now().strftime("%Y-%m-%d %H:%M"),
                     "notes": new_notes
@@ -113,7 +127,7 @@ with st.expander("➕ Add New Task", expanded=False):
 st.subheader("📋 Tasks")
 
 # Filters
-col_filter1, col_filter2 = st.columns(2)
+col_filter1, col_filter2, col_filter3 = st.columns(3)
 with col_filter1:
     filter_status = st.multiselect(
         "Filter by status",
@@ -121,6 +135,12 @@ with col_filter1:
         default=["pending", "running", "completed", "failed"]
     )
 with col_filter2:
+    filter_priority = st.multiselect(
+        "Filter by priority",
+        PRIORITIES,
+        default=[]
+    )
+with col_filter3:
     filter_submitter = st.multiselect(
         "Filter by submitter",
         TEAM_MEMBERS,
@@ -128,6 +148,8 @@ with col_filter2:
     )
 
 filtered_tasks = [t for t in st.session_state.tasks if t["status"] in filter_status]
+if filter_priority:
+    filtered_tasks = [t for t in filtered_tasks if t.get("priority") in filter_priority]
 if filter_submitter:
     filtered_tasks = [t for t in filtered_tasks if t.get("submitter") in filter_submitter]
 
@@ -139,7 +161,9 @@ else:
             col1, col2, col3 = st.columns([3, 1, 1])
 
             with col1:
-                st.markdown(f"**{STATUS_COLORS[task['status']]} {task['name']}**")
+                priority = task.get('priority', 'Medium')
+                priority_icon = PRIORITY_COLORS.get(priority, '⚪')
+                st.markdown(f"**{STATUS_COLORS[task['status']]} {task['name']}** &nbsp; {priority_icon} {priority}")
                 submitter = task.get('submitter', 'Unknown')
                 st.caption(f"Submitted by: {submitter} | Last run: {task['last_run']} | {task['notes']}")
 
