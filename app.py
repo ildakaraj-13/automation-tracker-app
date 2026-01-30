@@ -55,22 +55,9 @@ TEAM_MEMBERS = [
     "Dominique Vainikka",
 ]
 
-# Status styling
-STATUS_COLORS = {
-    "pending": "🟡",
-    "running": "🔵",
-    "completed": "🟢",
-    "failed": "🔴"
-}
-
-# Priority options
+# Options
 PRIORITIES = ["Low", "Medium", "High", "Critical"]
-PRIORITY_COLORS = {
-    "Low": "🟢",
-    "Medium": "🟡",
-    "High": "🟠",
-    "Critical": "🔴"
-}
+STATUSES = ["pending", "running", "completed", "failed"]
 
 # Custom CSS for modern styling
 st.markdown("""
@@ -104,11 +91,48 @@ st.markdown("""
         font-size: 0.8rem;
         margin-top: 1rem;
     }
+    .task-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #1e3a5f;
+    }
+    .task-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e3a5f;
+        margin: 0 0 0.25rem 0;
+    }
+    .task-meta {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin: 0;
+    }
+    .task-description {
+        font-size: 0.9rem;
+        color: #495057;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid #dee2e6;
+    }
+    .priority-badge {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-left: 0.5rem;
+    }
+    .priority-low { background: #d4edda; color: #155724; }
+    .priority-medium { background: #fff3cd; color: #856404; }
+    .priority-high { background: #ffe5d0; color: #c25400; }
+    .priority-critical { background: #f8d7da; color: #721c24; }
 </style>
 
 <div class="header-container">
     <p class="header-title">Automation Tracker</p>
-    <p class="header-subtitle">Welcome! Submit your automation ideas and track their progress here.</p>
+    <p class="header-subtitle">Submit your automation ideas and track their progress.</p>
     <span class="header-badge">Internal Tool</span>
 </div>
 """, unsafe_allow_html=True)
@@ -163,7 +187,7 @@ col_filter1, col_filter2, col_filter3 = st.columns(3)
 with col_filter1:
     filter_status = st.multiselect(
         "Filter by status",
-        ["pending", "running", "completed", "failed"],
+        STATUSES,
         default=[]
     )
 with col_filter2:
@@ -191,37 +215,43 @@ if not filtered_tasks:
     st.info("No tasks found. Add a new task above!")
 else:
     for task in filtered_tasks:
-        with st.container():
-            col1, col2, col3 = st.columns([3, 1, 1])
+        priority = task.get('priority', 'Medium')
+        priority_class = f"priority-{priority.lower()}"
+        submitter = task.get('submitter', 'Unknown')
+        description = task.get('notes', '')
 
-            with col1:
-                priority = task.get('priority', 'Medium')
-                st.markdown(f"<strong>{task['name']}</strong> — {priority}", unsafe_allow_html=True)
-                submitter = task.get('submitter', 'Unknown')
-                st.caption(f"Submitted by: {submitter} | Last run: {task['last_run']} | {task['notes']}")
+        # Build task card HTML
+        description_html = f'<p class="task-description">{description}</p>' if description else ''
 
-            with col2:
-                new_status = st.selectbox(
-                    "Status",
-                    ["pending", "running", "completed", "failed"],
-                    index=["pending", "running", "completed", "failed"].index(task["status"]),
-                    key=f"status_{task['id']}",
-                    label_visibility="collapsed"
-                )
-                if new_status != task["status"]:
-                    task["status"] = new_status
-                    task["last_run"] = datetime.now().strftime("%Y-%m-%d %H:%M")
-                    save_tasks()
-                    st.rerun()
+        st.markdown(f"""
+        <div class="task-card">
+            <p class="task-title">{task['name']}<span class="priority-badge {priority_class}">{priority}</span></p>
+            <p class="task-meta">Submitted by {submitter} · Updated {task['last_run']}</p>
+            {description_html}
+        </div>
+        """, unsafe_allow_html=True)
 
-            with col3:
-                if st.button("🗑️", key=f"delete_{task['id']}"):
-                    st.session_state.tasks = [t for t in st.session_state.tasks if t["id"] != task["id"]]
-                    save_tasks()
-                    st.rerun()
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            new_status = st.selectbox(
+                "Status",
+                STATUSES,
+                index=STATUSES.index(task["status"]),
+                key=f"status_{task['id']}",
+                label_visibility="collapsed"
+            )
+            if new_status != task["status"]:
+                task["status"] = new_status
+                task["last_run"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+                save_tasks()
+                st.rerun()
 
-            st.divider()
+        with col2:
+            if st.button("Delete", key=f"delete_{task['id']}", type="secondary"):
+                st.session_state.tasks = [t for t in st.session_state.tasks if t["id"] != task["id"]]
+                save_tasks()
+                st.rerun()
 
 # Footer
 st.markdown("---")
-st.caption("Built with Streamlit | Data saved to tasks.json")
+st.caption("Automation Tracker · Data persisted locally")
