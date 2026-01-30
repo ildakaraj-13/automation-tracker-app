@@ -20,6 +20,9 @@ __pycache__/
 venv/
 .venv/
 
+# Data
+tasks.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

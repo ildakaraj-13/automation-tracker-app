@@ -1,5 +1,26 @@
 import streamlit as st
+import json
+import os
 from datetime import datetime
+
+# Data file path
+DATA_FILE = "tasks.json"
+
+def load_tasks():
+    """Load tasks from JSON file."""
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as f:
+            data = json.load(f)
+            return data.get("tasks", []), data.get("next_id", 1)
+    return [], 1
+
+def save_tasks():
+    """Save tasks to JSON file."""
+    with open(DATA_FILE, "w") as f:
+        json.dump({
+            "tasks": st.session_state.tasks,
+            "next_id": st.session_state.next_id
+        }, f, indent=2)
 
 # Page config
 st.set_page_config(
@@ -8,12 +29,11 @@ st.set_page_config(
     layout="wide"
 )
 
-# Initialize session state for tasks
+# Initialize session state for tasks (load from file)
 if "tasks" not in st.session_state:
-    st.session_state.tasks = []
-
-if "next_id" not in st.session_state:
-    st.session_state.next_id = 1
+    tasks, next_id = load_tasks()
+    st.session_state.tasks = tasks
+    st.session_state.next_id = next_id
 
 # Team members
 TEAM_MEMBERS = [
@@ -130,6 +150,7 @@ with st.expander("➕ Add New Task", expanded=False):
                     "notes": new_notes
                 })
                 st.session_state.next_id += 1
+                save_tasks()
                 st.rerun()
             else:
                 st.error("Please enter a task name")
@@ -190,15 +211,17 @@ else:
                 if new_status != task["status"]:
                     task["status"] = new_status
                     task["last_run"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+                    save_tasks()
                     st.rerun()
 
             with col3:
                 if st.button("🗑️", key=f"delete_{task['id']}"):
                     st.session_state.tasks = [t for t in st.session_state.tasks if t["id"] != task["id"]]
+                    save_tasks()
                     st.rerun()
 
             st.divider()
 
 # Footer
 st.markdown("---")
-st.caption("Built with Streamlit | Data resets on app restart")
+st.caption("Built with Streamlit | Data saved to tasks.json")
