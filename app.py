@@ -80,9 +80,46 @@ PRIORITY_COLORS = {
     "Critical": "🔴"
 }
 
-# Header
-st.title("🤖 Automation Tracker")
-st.markdown("Track and manage your team's automation tasks")
+# Custom CSS for modern styling
+st.markdown("""
+<style>
+    .header-container {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+        padding: 2rem 2.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header-title {
+        color: white;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+    .header-subtitle {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        font-weight: 400;
+    }
+    .header-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-top: 1rem;
+    }
+</style>
+
+<div class="header-container">
+    <p class="header-title">Automation Tracker</p>
+    <p class="header-subtitle">Submit, track, and manage automation requests across your team</p>
+    <span class="header-badge">Internal Tool</span>
+</div>
+""", unsafe_allow_html=True)
 
 # Metrics row
 col1, col2, col3, col4 = st.columns(4)
